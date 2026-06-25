@@ -18,5 +18,6 @@ jobs:
           php-version: ${{ matrix.php-version }}
           tools: composer
       - run: composer validate --strict
+      - run: composer config repositories.runapi-core vcs https://github.com/runapi-ai/core-php
       - run: composer install --no-interaction --prefer-dist
       - run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
