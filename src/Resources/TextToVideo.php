@@ -20,6 +20,16 @@ readonly class TextToVideo extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/text_to_video';
     private const ACTION = 'kling/text-to-video';
+    private const V3_TURBO_UNSUPPORTED_FIELDS = [
+        'enable_sound',
+        'negative_prompt',
+        'cfg_scale',
+        'multi_shots',
+        'multi_prompt',
+        'first_frame_image_url',
+        'last_frame_image_url',
+        'kling_elements',
+    ];
 
     /**
      * Submits a text-to-video task and returns immediately with a task id.
@@ -112,6 +122,9 @@ readonly class TextToVideo extends AsyncResource
         }
 
         $this->validateModel($model, Types::TEXT_TO_VIDEO_MODELS);
+        if ($model === Types::MODEL_V3_TURBO_TEXT_TO_VIDEO) {
+            $this->rejectUnsupportedV3TurboFields($params);
+        }
 
         $multiShots = ($params['multi_shots'] ?? false) === true;
         if ($multiShots) {
@@ -160,5 +173,51 @@ readonly class TextToVideo extends AsyncResource
                 throw new ValidationException('multi_prompt[' . $index . '].duration_seconds must be between 1 and 12');
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function rejectUnsupportedV3TurboFields(array $params): void
+    {
+        foreach (self::V3_TURBO_UNSUPPORTED_FIELDS as $field) {
+            if ($this->fieldPresent($params, $field)) {
+                throw new ValidationException($field . ' is not supported by ' . Types::MODEL_V3_TURBO_TEXT_TO_VIDEO);
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function fieldPresent(array $params, string $field): bool
+    {
+        if (!array_key_exists($field, $params)) {
+            return false;
+        }
+
+        $value = $params[$field];
+        if ($value === false) {
+            return true;
+        }
+
+        return $this->present($value);
+    }
+
+    private function present(mixed $value): bool
+    {
+        if ($value === null || $value === false) {
+            return false;
+        }
+
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+
+        if (is_array($value)) {
+            return $value !== [];
+        }
+
+        return true;
     }
 }

@@ -21,6 +21,7 @@ use RunApi\Kling\Resources\AiAvatar;
 use RunApi\Kling\Resources\ImageToVideo;
 use RunApi\Kling\Resources\MotionControl;
 use RunApi\Kling\Resources\TextToVideo;
+use RunApi\Kling\Types;
 
 final class KlingClientTest extends TestCase
 {
@@ -147,6 +148,42 @@ final class KlingClientTest extends TestCase
         ]);
     }
 
+    public function testTextToVideoAcceptsV3TurboModel(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $task = $client->textToVideo->create([
+            'model' => Types::MODEL_V3_TURBO_TEXT_TO_VIDEO,
+            'prompt' => 'A silver train crossing a moonlit bridge',
+            'duration_seconds' => 7,
+            'aspect_ratio' => '16:9',
+            'output_resolution' => '1080p',
+        ]);
+
+        self::assertSame('task_v3', $task->id);
+        self::assertSame(
+            '{"model":"kling-v3-turbo-text-to-video","prompt":"A silver train crossing a moonlit bridge","duration_seconds":7,"aspect_ratio":"16:9","output_resolution":"1080p"}',
+            (string) $transport->requests[0]->getBody(),
+        );
+    }
+
+    public function testTextToVideoRejectsUnsupportedV3TurboFields(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('enable_sound is not allowed when model is kling-v3-turbo-text-to-video');
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_V3_TURBO_TEXT_TO_VIDEO,
+            'prompt' => 'A quiet city street after rain',
+            'enable_sound' => false,
+        ]);
+    }
+
     public function testTextToVideoRejectsMissingPromptOutsideMultiShot(): void
     {
         $client = $this->client();
@@ -194,6 +231,46 @@ final class KlingClientTest extends TestCase
             'model' => 'kling-v2.1-standard',
             'prompt' => 'A bird takes flight',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/first-frame.jpg',
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+        ]);
+    }
+
+    public function testImageToVideoAcceptsV3TurboModel(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_i2v"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $task = $client->imageToVideo->create([
+            'model' => Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO,
+            'prompt' => 'Camera glides toward the lighthouse',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'duration_seconds' => 7,
+            'output_resolution' => '720p',
+        ]);
+
+        self::assertSame('task_v3_i2v', $task->id);
+        self::assertSame([
+            'model' => 'kling-v3-turbo-image-to-video',
+            'prompt' => 'Camera glides toward the lighthouse',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'duration_seconds' => 7,
+            'output_resolution' => '720p',
+        ], json_decode((string) $transport->requests[0]->getBody(), true));
+    }
+
+    public function testImageToVideoRejectsUnsupportedV3TurboFields(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('last_frame_image_url is not allowed when model is kling-v3-turbo-image-to-video');
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO,
+            'prompt' => 'Camera glides toward the lighthouse',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
         ]);
     }

@@ -20,6 +20,12 @@ readonly class ImageToVideo extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/image_to_video';
     private const ACTION = 'kling/image-to-video';
+    private const V3_TURBO_UNSUPPORTED_FIELDS = [
+        'aspect_ratio',
+        'negative_prompt',
+        'cfg_scale',
+        'last_frame_image_url',
+    ];
 
     /**
      * Submits an image-to-video task and returns immediately with a task id.
@@ -30,6 +36,7 @@ readonly class ImageToVideo extends AsyncResource
      *   first_frame_image_url?: string,
      *   callback_url?: string,
      *   duration_seconds?: int,
+     *   output_resolution?: string,
      *   negative_prompt?: string,
      *   cfg_scale?: float|int,
      *   aspect_ratio?: string,
@@ -107,11 +114,61 @@ readonly class ImageToVideo extends AsyncResource
         }
 
         $this->validateModel($model, Types::IMAGE_TO_VIDEO_MODELS);
+        if ($model === Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO) {
+            $this->rejectUnsupportedV3TurboFields($params);
+        }
+
         $this->requireField($params, 'prompt');
         $this->requireField($params, 'first_frame_image_url');
 
         if (array_key_exists('last_frame_image_url', $params) && !in_array($model, Types::LAST_FRAME_IMAGE_MODELS, true)) {
             throw new ValidationException('last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro');
         }
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function rejectUnsupportedV3TurboFields(array $params): void
+    {
+        foreach (self::V3_TURBO_UNSUPPORTED_FIELDS as $field) {
+            if ($this->fieldPresent($params, $field)) {
+                throw new ValidationException($field . ' is not supported by ' . Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO);
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function fieldPresent(array $params, string $field): bool
+    {
+        if (!array_key_exists($field, $params)) {
+            return false;
+        }
+
+        $value = $params[$field];
+        if ($value === false) {
+            return true;
+        }
+
+        return $this->present($value);
+    }
+
+    private function present(mixed $value): bool
+    {
+        if ($value === null || $value === false) {
+            return false;
+        }
+
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+
+        if (is_array($value)) {
+            return $value !== [];
+        }
+
+        return true;
     }
 }

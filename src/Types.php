@@ -10,8 +10,10 @@ namespace RunApi\Kling;
 final class Types
 {
     public const MODEL_KLING_30 = 'kling-3.0';
+    public const MODEL_V3_TURBO_TEXT_TO_VIDEO = 'kling-v3-turbo-text-to-video';
     public const MODEL_V25_TURBO_TEXT_TO_VIDEO_PRO = 'kling-v2.5-turbo-text-to-video-pro';
     public const MODEL_V21_MASTER_TEXT_TO_VIDEO = 'kling-v2.1-master-text-to-video';
+    public const MODEL_V3_TURBO_IMAGE_TO_VIDEO = 'kling-v3-turbo-image-to-video';
     public const MODEL_V25_TURBO_IMAGE_TO_VIDEO_PRO = 'kling-v2.5-turbo-image-to-video-pro';
     public const MODEL_V21_PRO = 'kling-v2.1-pro';
     public const MODEL_V21_STANDARD = 'kling-v2.1-standard';
@@ -24,12 +26,14 @@ final class Types
     /** @var list<string> */
     public const TEXT_TO_VIDEO_MODELS = [
         self::MODEL_KLING_30,
+        self::MODEL_V3_TURBO_TEXT_TO_VIDEO,
         self::MODEL_V25_TURBO_TEXT_TO_VIDEO_PRO,
         self::MODEL_V21_MASTER_TEXT_TO_VIDEO,
     ];
 
     /** @var list<string> */
     public const IMAGE_TO_VIDEO_MODELS = [
+        self::MODEL_V3_TURBO_IMAGE_TO_VIDEO,
         self::MODEL_V25_TURBO_IMAGE_TO_VIDEO_PRO,
         self::MODEL_V21_PRO,
         self::MODEL_V21_STANDARD,
