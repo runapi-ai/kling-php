@@ -20,7 +20,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "RunApi\\Kling\\Tests\\": "tests/"
+      "RunApi\\Kling\\Tests\\": "tests/",
+      "RunApi\\Core\\Tests\\": "tests/Support/CoreTests/"
     }
   },
   "extra": {
@@ -45,5 +46,11 @@
     "packagist",
     "kling",
     "kling-api"
-  ]
+  ],
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "scripts": {
+    "test": "phpunit -c phpunit.xml.dist"
+  }
 }
