@@ -38,6 +38,7 @@ readonly class TextToVideo extends AsyncResource
      *   model: string,
      *   prompt?: string,
      *   callback_url?: string,
+     *   mode?: string,
      *   enable_sound?: bool,
      *   duration_seconds?: int,
      *   aspect_ratio?: string,
@@ -124,6 +125,9 @@ readonly class TextToVideo extends AsyncResource
         $this->validateModel($model, Types::TEXT_TO_VIDEO_MODELS);
         if ($model === Types::MODEL_V3_TURBO_TEXT_TO_VIDEO) {
             $this->rejectUnsupportedV3TurboFields($params);
+        }
+        if ($model === Types::MODEL_V26 && ($params['enable_sound'] ?? false) === true && ($params['mode'] ?? 'std') !== 'pro') {
+            throw new ValidationException('enable_sound requires mode pro for kling-v2.6');
         }
 
         $multiShots = ($params['multi_shots'] ?? false) === true;

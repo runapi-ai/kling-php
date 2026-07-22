@@ -184,6 +184,46 @@ final class KlingClientTest extends TestCase
         ]);
     }
 
+    public function testTextToVideoAcceptsV26ModeAndSoundFields(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v26"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'A paper boat crossing a rain puddle',
+            'mode' => 'pro',
+            'duration_seconds' => 10,
+            'enable_sound' => true,
+            'aspect_ratio' => '16:9',
+        ]);
+
+        self::assertSame([
+            'model' => 'kling-v2.6',
+            'prompt' => 'A paper boat crossing a rain puddle',
+            'mode' => 'pro',
+            'duration_seconds' => 10,
+            'enable_sound' => true,
+            'aspect_ratio' => '16:9',
+        ], json_decode((string) $transport->requests[0]->getBody(), true));
+    }
+
+    public function testTextToVideoRejectsV26SoundOutsideProMode(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('enable_sound requires mode pro for kling-v2.6');
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'A paper boat crossing a rain puddle',
+            'enable_sound' => true,
+        ]);
+    }
+
     public function testTextToVideoRejectsMissingPromptOutsideMultiShot(): void
     {
         $client = $this->client();
@@ -273,6 +313,71 @@ final class KlingClientTest extends TestCase
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
         ]);
+    }
+
+    public function testImageToVideoAcceptsV26ConditionalFields(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v26_i2v"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'Camera follows the cyclist through fog',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+            'mode' => 'pro',
+            'duration_seconds' => 5,
+            'enable_sound' => true,
+            'aspect_ratio' => '16:9',
+        ]);
+
+        self::assertSame('kling-v2.6', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
+    }
+
+    public function testImageToVideoRejectsV26SoundOutsideProMode(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('enable_sound requires mode pro for kling-v2.6');
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'test',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'enable_sound' => true,
+        ]);
+    }
+
+    /**
+     * @dataProvider invalidV26FinalFrameProvider
+     * @param array<string, mixed> $extra
+     */
+    public function testImageToVideoRejectsInvalidV26FinalFrameCombinations(array $extra, string $message): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage($message);
+
+        $client->imageToVideo->create(array_merge([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'test',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+        ], $extra));
+    }
+
+    /** @return iterable<string, array{array<string, mixed>, string}> */
+    public static function invalidV26FinalFrameProvider(): iterable
+    {
+        yield 'standard mode' => [[], 'last_frame_image_url requires mode pro for kling-v2.6'];
+        yield 'ten seconds' => [
+            ['mode' => 'pro', 'duration_seconds' => 10],
+            'last_frame_image_url requires duration_seconds 5 for kling-v2.6',
+        ];
     }
 
     public function testAiAvatarAndMotionControlCreate(): void

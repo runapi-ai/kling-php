@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.1.2](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.2) - 2026-07-22
+
+### Added
+- Add Kling 2.6 model constants, request fields, and conditional sound and final-frame validation.
+
+
 ## [v0.1.1](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.1) - 2026-07-16
 
 ### Changed

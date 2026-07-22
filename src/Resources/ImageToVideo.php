@@ -35,6 +35,8 @@ readonly class ImageToVideo extends AsyncResource
      *   prompt?: string,
      *   first_frame_image_url?: string,
      *   callback_url?: string,
+     *   mode?: string,
+     *   enable_sound?: bool,
      *   duration_seconds?: int,
      *   output_resolution?: string,
      *   negative_prompt?: string,
@@ -121,8 +123,30 @@ readonly class ImageToVideo extends AsyncResource
         $this->requireField($params, 'prompt');
         $this->requireField($params, 'first_frame_image_url');
 
-        if (array_key_exists('last_frame_image_url', $params) && !in_array($model, Types::LAST_FRAME_IMAGE_MODELS, true)) {
+        if ($model === Types::MODEL_V26) {
+            $this->validateV26Params($params);
+        } elseif (array_key_exists('last_frame_image_url', $params) && !in_array($model, Types::LAST_FRAME_IMAGE_MODELS, true)) {
             throw new ValidationException('last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function validateV26Params(array $params): void
+    {
+        $mode = $params['mode'] ?? 'std';
+        if (($params['enable_sound'] ?? false) === true && $mode !== 'pro') {
+            throw new ValidationException('enable_sound requires mode pro for kling-v2.6');
+        }
+        if (!array_key_exists('last_frame_image_url', $params)) {
+            return;
+        }
+        if ($mode !== 'pro') {
+            throw new ValidationException('last_frame_image_url requires mode pro for kling-v2.6');
+        }
+        if (($params['duration_seconds'] ?? 5) !== 5) {
+            throw new ValidationException('last_frame_image_url requires duration_seconds 5 for kling-v2.6');
         }
     }
 
