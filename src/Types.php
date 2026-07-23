@@ -55,7 +55,10 @@ final class Types
     ];
 
     /** @var list<string> */
-    public const MOTION_CONTROL_MODELS = [self::MODEL_KLING_30];
+    public const MOTION_CONTROL_MODELS = [
+        GeneratedModels::MOTION_CONTROL_KLING_3_0,
+        GeneratedModels::MOTION_CONTROL_KLING_V2_6,
+    ];
 
     /** @var list<string> */
     public const LAST_FRAME_IMAGE_MODELS = [

@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.1.4](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.4) - 2026-07-23
+
+### Added
+- Add Kling 2.6 motion-control model support and contract-driven request validation.
+
+
 ## [v0.1.3](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.3) - 2026-07-23
 
 ### Added

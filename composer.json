@@ -11,7 +11,7 @@
   ],
   "require": {
     "php": ">=8.2",
-    "runapi-ai/core": "^0.2.3"
+    "runapi-ai/core": "^0.2.4"
   },
   "autoload": {
     "psr-4": {

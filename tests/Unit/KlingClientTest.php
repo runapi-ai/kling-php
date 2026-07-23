@@ -462,6 +462,52 @@ final class KlingClientTest extends TestCase
         self::assertSame('/api/v1/kling/motion_control', $transport->requests[1]->getUri()->getPath());
     }
 
+    public function testMotionControlCreatesV26Request(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"motion_v26"}'),
+        ]);
+        $client = $this->client($transport);
+
+        self::assertSame('motion_v26', $client->motionControl->create([
+            'model' => Types::MODEL_V26,
+            'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
+            'output_resolution' => '1080p',
+            'character_orientation' => 'image',
+        ])->id);
+    }
+
+    public function testMotionControlV26RequiresOutputResolution(): void
+    {
+        $client = $this->client();
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('output_resolution is required');
+
+        $client->motionControl->create([
+            'model' => Types::MODEL_V26,
+            'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
+            'character_orientation' => 'video',
+        ]);
+    }
+
+    public function testMotionControlV26RejectsBackgroundSource(): void
+    {
+        $client = $this->client();
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('background_source is not allowed when model is kling-v2.6');
+
+        $client->motionControl->create([
+            'model' => Types::MODEL_V26,
+            'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
+            'output_resolution' => '720p',
+            'character_orientation' => 'video',
+            'background_source' => 'video',
+        ]);
+    }
+
     private function client(?QueueHttpClient $transport = null): KlingClient
     {
         return new KlingClient(new ClientOptions(
