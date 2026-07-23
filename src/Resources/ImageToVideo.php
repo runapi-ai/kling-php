@@ -125,6 +125,10 @@ readonly class ImageToVideo extends AsyncResource
 
         if ($model === Types::MODEL_V26) {
             $this->validateV26Params($params);
+        } elseif ($model === Types::MODEL_V3_OMNI && array_key_exists('last_frame_image_url', $params)) {
+            if (($params['duration_seconds'] ?? 5) !== 5) {
+                throw new ValidationException('last_frame_image_url requires duration_seconds 5 for kling-v3-omni');
+            }
         } elseif (array_key_exists('last_frame_image_url', $params) && !in_array($model, Types::LAST_FRAME_IMAGE_MODELS, true)) {
             throw new ValidationException('last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro');
         }

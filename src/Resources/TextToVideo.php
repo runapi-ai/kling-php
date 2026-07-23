@@ -38,7 +38,6 @@ readonly class TextToVideo extends AsyncResource
      *   model: string,
      *   prompt?: string,
      *   callback_url?: string,
-     *   mode?: string,
      *   enable_sound?: bool,
      *   duration_seconds?: int,
      *   aspect_ratio?: string,

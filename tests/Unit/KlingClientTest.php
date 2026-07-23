@@ -210,6 +210,25 @@ final class KlingClientTest extends TestCase
         ], json_decode((string) $transport->requests[0]->getBody(), true));
     }
 
+    public function testTextToVideoAcceptsV3OmniResolutionAndSoundFields(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_omni"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_V3_OMNI,
+            'prompt' => 'A paper boat crossing a rain puddle',
+            'output_resolution' => '1080p',
+            'duration_seconds' => 10,
+            'enable_sound' => true,
+            'aspect_ratio' => '16:9',
+        ]);
+
+        self::assertSame('kling-v3-omni', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
+    }
+
     public function testTextToVideoRejectsV26SoundOutsideProMode(): void
     {
         $client = $this->client();
@@ -336,6 +355,27 @@ final class KlingClientTest extends TestCase
         self::assertSame('kling-v2.6', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
     }
 
+    public function testImageToVideoAcceptsV3OmniConditionalFields(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_omni_i2v"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_V3_OMNI,
+            'prompt' => 'Camera follows the cyclist through fog',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image.jpg',
+            'output_resolution' => '4k',
+            'duration_seconds' => 5,
+            'enable_sound' => false,
+            'aspect_ratio' => '9:16',
+        ]);
+
+        self::assertSame('kling-v3-omni', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
+    }
+
     public function testImageToVideoRejectsV26SoundOutsideProMode(): void
     {
         $client = $this->client();
@@ -378,6 +418,22 @@ final class KlingClientTest extends TestCase
             ['mode' => 'pro', 'duration_seconds' => 10],
             'last_frame_image_url requires duration_seconds 5 for kling-v2.6',
         ];
+    }
+
+    public function testImageToVideoRejectsV3OmniFinalFrameOutsideFiveSeconds(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('last_frame_image_url requires duration_seconds 5 for kling-v3-omni');
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_V3_OMNI,
+            'prompt' => 'test',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image.jpg',
+            'duration_seconds' => 7,
+        ]);
     }
 
     public function testAiAvatarAndMotionControlCreate(): void

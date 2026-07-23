@@ -7,6 +7,7 @@ namespace RunApi\Kling;
 use RunApi\Core\BaseClient;
 use RunApi\Core\ClientOptions;
 use RunApi\Kling\Resources\AiAvatar;
+use RunApi\Kling\Resources\ExtendVideo;
 use RunApi\Kling\Resources\ImageToVideo;
 use RunApi\Kling\Resources\MotionControl;
 use RunApi\Kling\Resources\TextToVideo;
@@ -34,6 +35,7 @@ final class KlingClient extends BaseClient
      * Motion control operations.
      */
     public readonly MotionControl $motionControl;
+    public readonly ExtendVideo $extendVideo;
 
     /**
      * Create a Kling client with optional API key, base URL, and transport overrides.
@@ -45,5 +47,6 @@ final class KlingClient extends BaseClient
         $this->imageToVideo = new ImageToVideo($this->http);
         $this->aiAvatar = new AiAvatar($this->http);
         $this->motionControl = new MotionControl($this->http);
+        $this->extendVideo = new ExtendVideo($this->http);
     }
 }

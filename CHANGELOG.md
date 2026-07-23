@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.1.3](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.3) - 2026-07-23
+
+### Added
+- Add Kling V3 Omni model constants, request fields, and final-frame duration validation.
+- Add PHP SDK support for continuing completed Kling v2.5 Turbo videos.
+
+
 ## [v0.1.2](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.2) - 2026-07-22
 
 ### Added
