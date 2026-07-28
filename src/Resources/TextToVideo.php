@@ -48,7 +48,11 @@ readonly class TextToVideo extends AsyncResource
      *   multi_prompt?: list<array{prompt?: string, duration_seconds?: int}>,
      *   first_frame_image_url?: string,
      *   last_frame_image_url?: string,
-     *   kling_elements?: list<array<string, mixed>>
+     *   kling_elements?: list<array<string, mixed>>,
+     *   reference_image_urls?: list<string>,
+     *   reference_video_url?: string,
+     *   reference_video_type?: string,
+     *   preserve_reference_video_audio?: bool
      * } $params
      */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
@@ -122,6 +126,7 @@ readonly class TextToVideo extends AsyncResource
         }
 
         $this->validateModel($model, Types::TEXT_TO_VIDEO_MODELS);
+        O1ReferenceValidation::validate($params, $model);
         if ($model === Types::MODEL_V3_TURBO_TEXT_TO_VIDEO) {
             $this->rejectUnsupportedV3TurboFields($params);
         }

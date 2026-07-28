@@ -243,6 +243,48 @@ final class KlingClientTest extends TestCase
         ]);
     }
 
+    public function testTextToVideoAcceptsO1ReferenceMedia(): void
+    {
+        $transport = new QueueHttpClient([
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_o1"}'),
+        ]);
+        $client = $this->client($transport);
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_O1,
+            'prompt' => 'Keep <<<image_1>>> beside <<<video_1>>>',
+            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
+            'reference_video_type' => 'feature',
+            'preserve_reference_video_audio' => true,
+            'duration_seconds' => 5,
+        ]);
+
+        self::assertSame([
+            'model' => 'kling-o1',
+            'prompt' => 'Keep <<<image_1>>> beside <<<video_1>>>',
+            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
+            'reference_video_type' => 'feature',
+            'preserve_reference_video_audio' => true,
+            'duration_seconds' => 5,
+        ], json_decode((string) $transport->requests[0]->getBody(), true));
+    }
+
+    public function testTextToVideoRejectsO1PromptMissingImageMarker(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('prompt must reference reference_image_urls[0] as <<<image_1>>>');
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_O1,
+            'prompt' => 'Keep the same subject',
+            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+        ]);
+    }
+
     public function testTextToVideoRejectsMissingPromptOutsideMultiShot(): void
     {
         $client = $this->client();
@@ -434,6 +476,82 @@ final class KlingClientTest extends TestCase
             'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image.jpg',
             'duration_seconds' => 7,
         ]);
+    }
+
+    public function testImageToVideoRejectsO1BaseVideoWithFrameInput(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url');
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_O1,
+            'prompt' => 'Use <<<video_1>>> as the base',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
+            'reference_video_type' => 'base',
+        ]);
+    }
+
+    public function testImageToVideoRejectsO1TailFrameWithReferenceMedia(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('last_frame_image_url cannot be combined with reference_image_urls or reference_video_url');
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_O1,
+            'prompt' => 'Move toward <<<image_1>>>',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+        ]);
+    }
+
+    public function testTextToVideoRejectsO1MissingVideoReference(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('prompt references missing video_1');
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_O1,
+            'prompt' => 'Follow <<<video_1>>>',
+        ]);
+    }
+
+    public function testTextToVideoRejectsNonPublicO1ReferenceMedia(): void
+    {
+        $client = $this->client();
+
+        foreach ([
+            'file:///etc/passwd.jpg',
+            'http://localhost/reference.jpg',
+            'http://127.0.0.1/reference.jpg',
+            'http://169.254.169.254/reference.jpg',
+            'http://[::ffff:127.0.0.1]/reference.jpg',
+            'http://2130706433/reference.jpg',
+            'http://127.1/reference.jpg',
+            'http://0177.0.0.1/reference.jpg',
+            'http://0x7f000001/reference.jpg',
+        ] as $referenceUrl) {
+            try {
+                $client->textToVideo->create([
+                    'model' => Types::MODEL_O1,
+                    'prompt' => 'Use <<<image_1>>>',
+                    'reference_image_urls' => [$referenceUrl],
+                ]);
+                self::fail('Expected non-public reference URL to be rejected: ' . $referenceUrl);
+            } catch (ValidationException $error) {
+                self::assertSame(
+                    'reference_image_urls[0] must be a public HTTP or HTTPS URL',
+                    $error->getMessage()
+                );
+            }
+        }
     }
 
     public function testAiAvatarAndMotionControlCreate(): void

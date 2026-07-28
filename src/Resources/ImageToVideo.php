@@ -42,7 +42,11 @@ readonly class ImageToVideo extends AsyncResource
      *   negative_prompt?: string,
      *   cfg_scale?: float|int,
      *   aspect_ratio?: string,
-     *   last_frame_image_url?: string
+     *   last_frame_image_url?: string,
+     *   reference_image_urls?: list<string>,
+     *   reference_video_url?: string,
+     *   reference_video_type?: string,
+     *   preserve_reference_video_audio?: bool
      * } $params
      */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
@@ -116,6 +120,7 @@ readonly class ImageToVideo extends AsyncResource
         }
 
         $this->validateModel($model, Types::IMAGE_TO_VIDEO_MODELS);
+        O1ReferenceValidation::validate($params, $model);
         if ($model === Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO) {
             $this->rejectUnsupportedV3TurboFields($params);
         }

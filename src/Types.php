@@ -9,6 +9,7 @@ namespace RunApi\Kling;
  */
 final class Types
 {
+    public const MODEL_O1 = GeneratedModels::TEXT_TO_VIDEO_KLING_O1;
     public const MODEL_KLING_30 = GeneratedModels::TEXT_TO_VIDEO_KLING_3_0;
     public const MODEL_V26 = GeneratedModels::TEXT_TO_VIDEO_KLING_V2_6;
     public const MODEL_V3_OMNI = GeneratedModels::TEXT_TO_VIDEO_KLING_V3_OMNI;
@@ -27,6 +28,7 @@ final class Types
 
     /** @var list<string> */
     public const TEXT_TO_VIDEO_MODELS = [
+        self::MODEL_O1,
         self::MODEL_KLING_30,
         self::MODEL_V26,
         self::MODEL_V3_OMNI,
@@ -37,6 +39,7 @@ final class Types
 
     /** @var list<string> */
     public const IMAGE_TO_VIDEO_MODELS = [
+        self::MODEL_O1,
         self::MODEL_V3_TURBO_IMAGE_TO_VIDEO,
         self::MODEL_V26,
         self::MODEL_V3_OMNI,
@@ -62,6 +65,7 @@ final class Types
 
     /** @var list<string> */
     public const LAST_FRAME_IMAGE_MODELS = [
+        self::MODEL_O1,
         self::MODEL_V25_TURBO_IMAGE_TO_VIDEO_PRO,
         self::MODEL_V21_PRO,
     ];

@@ -8,11 +8,13 @@ namespace RunApi\Kling;
 final class GeneratedModels
 {
     public const TEXT_TO_VIDEO_KLING_3_0 = 'kling-3.0';
+    public const TEXT_TO_VIDEO_KLING_O1 = 'kling-o1';
     public const TEXT_TO_VIDEO_KLING_V2_1_MASTER_TEXT_TO_VIDEO = 'kling-v2.1-master-text-to-video';
     public const TEXT_TO_VIDEO_KLING_V2_5_TURBO_TEXT_TO_VIDEO_PRO = 'kling-v2.5-turbo-text-to-video-pro';
     public const TEXT_TO_VIDEO_KLING_V2_6 = 'kling-v2.6';
     public const TEXT_TO_VIDEO_KLING_V3_OMNI = 'kling-v3-omni';
     public const TEXT_TO_VIDEO_KLING_V3_TURBO_TEXT_TO_VIDEO = 'kling-v3-turbo-text-to-video';
+    public const IMAGE_TO_VIDEO_KLING_O1 = 'kling-o1';
     public const IMAGE_TO_VIDEO_KLING_V2_1_MASTER_IMAGE_TO_VIDEO = 'kling-v2.1-master-image-to-video';
     public const IMAGE_TO_VIDEO_KLING_V2_1_PRO = 'kling-v2.1-pro';
     public const IMAGE_TO_VIDEO_KLING_V2_1_STANDARD = 'kling-v2.1-standard';

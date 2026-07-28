@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.1.5](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.5) - 2026-07-28
+
+### Added
+- Add Kling O1 reference-media fields and client-side cross-field validation to text-to-video and image-to-video resources.
+
+
 ## [v0.1.4](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.4) - 2026-07-23
 
 ### Added
