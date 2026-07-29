@@ -33,7 +33,7 @@
   "homepage": "https://runapi.ai/models/kling",
   "support": {
     "source": "https://github.com/runapi-ai/kling-php",
-    "docs": "https://runapi.ai/docs#sdk-kling",
+    "docs": "https://runapi.ai/docs/resources/sdks",
     "issues": "https://github.com/runapi-ai/kling-php/issues"
   },
   "keywords": [

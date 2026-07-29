@@ -63,8 +63,8 @@ All SDK exceptions inherit from `RunApi\Core\Errors\RunApiException`, including 
 ## Links
 
 - Model page: https://runapi.ai/models/kling
-- SDK docs: https://runapi.ai/docs#sdk-kling
-- Product docs: https://runapi.ai/docs#kling
+- SDK docs: https://runapi.ai/docs/resources/sdks
+- Product docs: https://runapi.ai/docs/api/kling/text-to-video
 - Pricing and rate limits: https://runapi.ai/models/kling/3.0
 - Full catalog: https://runapi.ai/models
 - GitHub repository: https://github.com/runapi-ai/kling-php
