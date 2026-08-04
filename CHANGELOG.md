@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.1.6](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.6) - 2026-08-04
+
+### Fixed
+- Reject reference URLs whose host is an incomplete or malformed numeric address.
+
+
 ## [v0.1.5](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.5) - 2026-07-28
 
 ### Added

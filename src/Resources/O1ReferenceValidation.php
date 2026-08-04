@@ -206,6 +206,10 @@ final class O1ReferenceValidation
         if ($host === 'localhost' || str_ends_with($host, '.localhost')) {
             return true;
         }
+        if (preg_match('/\A[0-9.]+\z/', $host) === 1
+            && filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+            return true;
+        }
 
         $address = inet_pton($host);
         if ($address === false) {
