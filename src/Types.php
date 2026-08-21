@@ -13,6 +13,8 @@ final class Types
     public const MODEL_KLING_30 = GeneratedModels::TEXT_TO_VIDEO_KLING_3_0;
     public const MODEL_V26 = GeneratedModels::TEXT_TO_VIDEO_KLING_V2_6;
     public const MODEL_V3_OMNI = GeneratedModels::TEXT_TO_VIDEO_KLING_V3_OMNI;
+    public const MODEL_V3_OMNI_REFERENCE = GeneratedModels::TEXT_TO_VIDEO_KLING_V3_OMNI_REFERENCE;
+    public const MODEL_V3_OMNI_EDIT = GeneratedModels::EDIT_VIDEO_KLING_V3_OMNI_EDIT;
     public const MODEL_V3_TURBO_TEXT_TO_VIDEO = GeneratedModels::TEXT_TO_VIDEO_KLING_V3_TURBO_TEXT_TO_VIDEO;
     public const MODEL_V25_TURBO_TEXT_TO_VIDEO_PRO = GeneratedModels::TEXT_TO_VIDEO_KLING_V2_5_TURBO_TEXT_TO_VIDEO_PRO;
     public const MODEL_V21_MASTER_TEXT_TO_VIDEO = GeneratedModels::TEXT_TO_VIDEO_KLING_V2_1_MASTER_TEXT_TO_VIDEO;
@@ -32,6 +34,7 @@ final class Types
         self::MODEL_KLING_30,
         self::MODEL_V26,
         self::MODEL_V3_OMNI,
+        self::MODEL_V3_OMNI_REFERENCE,
         self::MODEL_V3_TURBO_TEXT_TO_VIDEO,
         self::MODEL_V25_TURBO_TEXT_TO_VIDEO_PRO,
         self::MODEL_V21_MASTER_TEXT_TO_VIDEO,
@@ -55,6 +58,12 @@ final class Types
         self::MODEL_AI_AVATAR_STANDARD,
         self::MODEL_AI_AVATAR_V1_PRO,
         self::MODEL_V1_AVATAR_STANDARD,
+    ];
+
+    /** @var list<string> */
+    public const EDIT_VIDEO_MODELS = [
+        self::MODEL_V3_OMNI_REFERENCE,
+        self::MODEL_V3_OMNI_EDIT,
     ];
 
     /** @var list<string> */

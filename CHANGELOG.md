@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.0](https://github.com/runapi-ai/kling-php/releases/tag/v0.2.0) - 2026-08-21
+
+### Added
+- Add typed text-to-video and edit-video resources for Kling V3 Omni workflows.
+
+
 ## [v0.1.6](https://github.com/runapi-ai/kling-php/releases/tag/v0.1.6) - 2026-08-04
 
 ### Fixed

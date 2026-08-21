@@ -54,6 +54,10 @@ $result = $client->textToVideo->run([
 
 Number reference images in prompt order as `<<<image_1>>>`, `<<<image_2>>>`, and so on; the optional video is `<<<video_1>>>`. With a video, send at most four images. Do not combine `last_frame_image_url` with reference images or a reference video. A `feature` reference video may be used with the required first frame; `base` cannot be combined with frame inputs. O1 requests are five seconds and keep sound disabled. Pricing and limits: https://runapi.ai/models/kling/o1.
 
+## Kling V3 Omni source-video editing
+
+Use `kling-v3-omni-reference` with `textToVideo` for image-only reference inputs. For a source video, use `editVideo` with either `kling-v3-omni-reference` or `kling-v3-omni-edit`. The reference model keeps sound disabled for source-video requests.
+
 Use `create()` to submit a task and return quickly, `get()` to fetch the latest task state, and `run()` when a script should create and poll until completion. In web request handlers, prefer `create()` plus webhook or later `get()` polling so a worker is not held open.
 
 Returned file URLs are temporary. Download and store generated files in your own durable storage within the retention window.

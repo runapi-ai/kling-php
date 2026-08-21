@@ -18,6 +18,7 @@ use RunApi\Core\Tests\Fixtures\QueueHttpClient;
 use RunApi\Kling\KlingClient;
 use RunApi\Kling\Models\CompletedTextToVideoResponse;
 use RunApi\Kling\Resources\AiAvatar;
+use RunApi\Kling\Resources\EditVideo;
 use RunApi\Kling\Resources\ImageToVideo;
 use RunApi\Kling\Resources\MotionControl;
 use RunApi\Kling\Resources\TextToVideo;
@@ -33,6 +34,7 @@ final class KlingClientTest extends TestCase
         self::assertInstanceOf(ImageToVideo::class, $client->imageToVideo);
         self::assertInstanceOf(AiAvatar::class, $client->aiAvatar);
         self::assertInstanceOf(MotionControl::class, $client->motionControl);
+        self::assertInstanceOf(EditVideo::class, $client->editVideo);
         self::assertInstanceOf(Files::class, $client->files);
         self::assertInstanceOf(Account::class, $client->account);
     }
