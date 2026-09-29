@@ -18,16 +18,14 @@ final class OmniWorkflowTest extends TestCase
     public function testTextToVideoAcceptsReferenceImageModel(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"reference-image","status":"processing"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"reference-image","status":"processing"}')]);
         $client = $this->client($transport);
 
         self::assertSame('reference-image', $client->textToVideo->create([
             'model' => Types::MODEL_V3_OMNI_REFERENCE,
             'prompt' => 'Keep the subject from the reference image',
             'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/image.jpg'],
-            'aspect_ratio' => '16:9',
-        ])->id);
+            'aspect_ratio' => '16:9'])->id);
         self::assertSame('/api/v1/kling/text_to_video', $transport->requests[0]->getUri()->getPath());
     }
 
@@ -37,8 +35,7 @@ final class OmniWorkflowTest extends TestCase
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-create","status":"processing"}'),
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-get","status":"processing"}'),
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-run","status":"processing"}'),
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-run","status":"completed","videos":[{"url":"https://file.runapi.ai/edit.mp4"}]}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-run","status":"completed","videos":[{"url":"https://file.runapi.ai/edit.mp4"}],"usage":{"cost":0.05}}')]);
         $client = $this->client($transport);
         $params = [
             'model' => Types::MODEL_V3_OMNI_REFERENCE,
@@ -46,8 +43,7 @@ final class OmniWorkflowTest extends TestCase
             'source_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
             'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/image.jpg'],
             'aspect_ratio' => '16:9',
-            'enable_sound' => false,
-        ];
+            'enable_sound' => false];
 
         self::assertSame('edit-create', $client->editVideo->create($params)->id);
         self::assertSame('processing', $client->editVideo->get('edit-get')->status);
@@ -63,15 +59,13 @@ final class OmniWorkflowTest extends TestCase
     public function testEditVideoAcceptsEditModel(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-create","status":"processing"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"edit-create","status":"processing"}')]);
         $client = $this->client($transport);
         $params = [
             'model' => Types::MODEL_V3_OMNI_EDIT,
             'prompt' => 'Turn the source video into a watercolor scene',
             'source_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'aspect_ratio' => 'auto',
-        ];
+            'aspect_ratio' => 'auto'];
 
         self::assertSame('edit-create', $client->editVideo->create($params)->id);
         self::assertSame('/api/v1/kling/edit_video', $transport->requests[0]->getUri()->getPath());

@@ -42,8 +42,7 @@ final class KlingClientTest extends TestCase
     public function testTextToVideoCreatePostsCompactedBodyAndOptionsHeaders(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}')]);
         $client = $this->client($transport);
 
         $task = $client->textToVideo->create([
@@ -51,8 +50,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'A cat walking through a garden',
             'aspect_ratio' => '16:9',
             'callback_url' => '',
-            'kling_elements' => [],
-        ], new RequestOptions(headers: ['X-Test' => 'yes']));
+            'kling_elements' => []], new RequestOptions(headers: ['X-Test' => 'yes']));
 
         self::assertSame('task_123', $task->id);
         $request = $transport->requests[0];
@@ -68,8 +66,7 @@ final class KlingClientTest extends TestCase
     public function testTextToVideoGetFetchesTaskById(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_abc","status":"processing"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_abc","status":"processing"}')]);
         $client = $this->client($transport);
 
         $response = $client->textToVideo->get('task_abc');
@@ -85,14 +82,12 @@ final class KlingClientTest extends TestCase
         $transport = new QueueHttpClient([
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}'),
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"processing"}'),
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"completed","videos":[{"url":"https://file.runapi.ai/video.mp4"}]}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"completed","videos":[{"url":"https://file.runapi.ai/video.mp4"}],"usage":{"cost":0.05}}')]);
         $resource = $this->textToVideo($transport);
 
         $response = $resource->run([
             'model' => 'kling-3.0',
-            'prompt' => 'A serene forest',
-        ], new RequestOptions(pollIntervalSeconds: 0.0));
+            'prompt' => 'A serene forest'], new RequestOptions(pollIntervalSeconds: 0.0));
 
         self::assertInstanceOf(CompletedTextToVideoResponse::class, $response);
         self::assertSame('completed', $response->status);
@@ -106,8 +101,7 @@ final class KlingClientTest extends TestCase
     {
         $transport = new QueueHttpClient([
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}'),
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"failed","error":"render failed"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"failed","error":"render failed"}')]);
         $resource = $this->textToVideo($transport);
 
         $this->expectException(TaskFailedException::class);
@@ -115,16 +109,14 @@ final class KlingClientTest extends TestCase
 
         $resource->run([
             'model' => 'kling-3.0',
-            'prompt' => 'A serene forest',
-        ], new RequestOptions(pollIntervalSeconds: 0.0));
+            'prompt' => 'A serene forest'], new RequestOptions(pollIntervalSeconds: 0.0));
     }
 
     public function testTextToVideoRunRaisesTaskTimeout(): void
     {
         $transport = new QueueHttpClient([
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}'),
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"processing"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123","status":"processing"}')]);
         $resource = $this->textToVideo($transport, [0.0, 2.0]);
 
         $this->expectException(TaskTimeoutException::class);
@@ -132,8 +124,7 @@ final class KlingClientTest extends TestCase
 
         $resource->run([
             'model' => 'kling-3.0',
-            'prompt' => 'A serene forest',
-        ], new RequestOptions(maxWaitSeconds: 1.0, pollIntervalSeconds: 0.0));
+            'prompt' => 'A serene forest'], new RequestOptions(maxWaitSeconds: 1.0, pollIntervalSeconds: 0.0));
     }
 
     public function testTextToVideoUsesGeneratedContractValidation(): void
@@ -146,15 +137,13 @@ final class KlingClientTest extends TestCase
         $client->textToVideo->create([
             'model' => 'kling-v2.5-turbo-text-to-video-pro',
             'prompt' => 'A serene forest',
-            'duration_seconds' => 6,
-        ]);
+            'duration_seconds' => 6]);
     }
 
     public function testTextToVideoAcceptsV3TurboModel(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3"}')]);
         $client = $this->client($transport);
 
         $task = $client->textToVideo->create([
@@ -162,8 +151,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'A silver train crossing a moonlit bridge',
             'duration_seconds' => 7,
             'aspect_ratio' => '16:9',
-            'output_resolution' => '1080p',
-        ]);
+            'output_resolution' => '1080p']);
 
         self::assertSame('task_v3', $task->id);
         self::assertSame(
@@ -182,15 +170,13 @@ final class KlingClientTest extends TestCase
         $client->textToVideo->create([
             'model' => Types::MODEL_V3_TURBO_TEXT_TO_VIDEO,
             'prompt' => 'A quiet city street after rain',
-            'enable_sound' => false,
-        ]);
+            'enable_sound' => false]);
     }
 
     public function testTextToVideoAcceptsV26ModeAndSoundFields(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v26"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v26"}')]);
         $client = $this->client($transport);
 
         $client->textToVideo->create([
@@ -199,8 +185,7 @@ final class KlingClientTest extends TestCase
             'mode' => 'pro',
             'duration_seconds' => 10,
             'enable_sound' => true,
-            'aspect_ratio' => '16:9',
-        ]);
+            'aspect_ratio' => '16:9']);
 
         self::assertSame([
             'model' => 'kling-v2.6',
@@ -208,15 +193,13 @@ final class KlingClientTest extends TestCase
             'mode' => 'pro',
             'duration_seconds' => 10,
             'enable_sound' => true,
-            'aspect_ratio' => '16:9',
-        ], json_decode((string) $transport->requests[0]->getBody(), true));
+            'aspect_ratio' => '16:9'], json_decode((string) $transport->requests[0]->getBody(), true));
     }
 
     public function testTextToVideoAcceptsV3OmniResolutionAndSoundFields(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_omni"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_omni"}')]);
         $client = $this->client($transport);
 
         $client->textToVideo->create([
@@ -225,8 +208,7 @@ final class KlingClientTest extends TestCase
             'output_resolution' => '1080p',
             'duration_seconds' => 10,
             'enable_sound' => true,
-            'aspect_ratio' => '16:9',
-        ]);
+            'aspect_ratio' => '16:9']);
 
         self::assertSame('kling-v3-omni', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
     }
@@ -236,20 +218,32 @@ final class KlingClientTest extends TestCase
         $client = $this->client();
 
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound requires mode pro for kling-v2.6');
+        $this->expectExceptionMessage('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
 
         $client->textToVideo->create([
             'model' => Types::MODEL_V26,
             'prompt' => 'A paper boat crossing a rain puddle',
-            'enable_sound' => true,
-        ]);
+            'enable_sound' => true]);
+    }
+
+    public function testTextToVideoRejectsV26SoundInStandardMode(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('enable_sound must be one of: false when mode is std and model is kling-v2.6');
+
+        $client->textToVideo->create([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'A paper boat crossing a rain puddle',
+            'mode' => 'std',
+            'enable_sound' => true]);
     }
 
     public function testTextToVideoAcceptsO1ReferenceMedia(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_o1"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_o1"}')]);
         $client = $this->client($transport);
 
         $client->textToVideo->create([
@@ -259,8 +253,7 @@ final class KlingClientTest extends TestCase
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
             'reference_video_type' => 'feature',
             'preserve_reference_video_audio' => true,
-            'duration_seconds' => 5,
-        ]);
+            'duration_seconds' => 5]);
 
         self::assertSame([
             'model' => 'kling-o1',
@@ -269,8 +262,7 @@ final class KlingClientTest extends TestCase
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
             'reference_video_type' => 'feature',
             'preserve_reference_video_audio' => true,
-            'duration_seconds' => 5,
-        ], json_decode((string) $transport->requests[0]->getBody(), true));
+            'duration_seconds' => 5], json_decode((string) $transport->requests[0]->getBody(), true));
     }
 
     public function testTextToVideoRejectsO1PromptMissingImageMarker(): void
@@ -283,8 +275,7 @@ final class KlingClientTest extends TestCase
         $client->textToVideo->create([
             'model' => Types::MODEL_O1,
             'prompt' => 'Keep the same subject',
-            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
-        ]);
+            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg']]);
     }
 
     public function testTextToVideoRejectsMissingPromptOutsideMultiShot(): void
@@ -307,23 +298,20 @@ final class KlingClientTest extends TestCase
         $client->textToVideo->create([
             'model' => 'kling-3.0',
             'multi_shots' => true,
-            'multi_prompt' => [['prompt' => 'shot one', 'duration_seconds' => 3]],
-        ]);
+            'multi_prompt' => [['prompt' => 'shot one', 'duration_seconds' => 3]]]);
     }
 
     public function testImageToVideoCreateAndLastFrameValidation(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}')]);
         $client = $this->client($transport);
 
         $client->imageToVideo->create([
             'model' => 'kling-v2.5-turbo-image-to-video-pro',
             'prompt' => 'A bird takes flight',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/first-frame.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-        ]);
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg']);
 
         self::assertSame('/api/v1/kling/image_to_video', $transport->requests[0]->getUri()->getPath());
 
@@ -334,15 +322,13 @@ final class KlingClientTest extends TestCase
             'model' => 'kling-v2.1-standard',
             'prompt' => 'A bird takes flight',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/first-frame.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-        ]);
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg']);
     }
 
     public function testImageToVideoAcceptsV3TurboModel(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_i2v"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_i2v"}')]);
         $client = $this->client($transport);
 
         $task = $client->imageToVideo->create([
@@ -350,8 +336,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'Camera glides toward the lighthouse',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'duration_seconds' => 7,
-            'output_resolution' => '720p',
-        ]);
+            'output_resolution' => '720p']);
 
         self::assertSame('task_v3_i2v', $task->id);
         self::assertSame([
@@ -359,8 +344,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'Camera glides toward the lighthouse',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'duration_seconds' => 7,
-            'output_resolution' => '720p',
-        ], json_decode((string) $transport->requests[0]->getBody(), true));
+            'output_resolution' => '720p'], json_decode((string) $transport->requests[0]->getBody(), true));
     }
 
     public function testImageToVideoRejectsUnsupportedV3TurboFields(): void
@@ -374,15 +358,13 @@ final class KlingClientTest extends TestCase
             'model' => Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO,
             'prompt' => 'Camera glides toward the lighthouse',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-        ]);
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg']);
     }
 
     public function testImageToVideoAcceptsV26ConditionalFields(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v26_i2v"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v26_i2v"}')]);
         $client = $this->client($transport);
 
         $client->imageToVideo->create([
@@ -393,8 +375,7 @@ final class KlingClientTest extends TestCase
             'mode' => 'pro',
             'duration_seconds' => 5,
             'enable_sound' => true,
-            'aspect_ratio' => '16:9',
-        ]);
+            'aspect_ratio' => '16:9']);
 
         self::assertSame('kling-v2.6', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
     }
@@ -402,8 +383,7 @@ final class KlingClientTest extends TestCase
     public function testImageToVideoAcceptsV3OmniConditionalFields(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_omni_i2v"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_v3_omni_i2v"}')]);
         $client = $this->client($transport);
 
         $client->imageToVideo->create([
@@ -414,8 +394,7 @@ final class KlingClientTest extends TestCase
             'output_resolution' => '4k',
             'duration_seconds' => 5,
             'enable_sound' => false,
-            'aspect_ratio' => '9:16',
-        ]);
+            'aspect_ratio' => '9:16']);
 
         self::assertSame('kling-v3-omni', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
     }
@@ -425,14 +404,28 @@ final class KlingClientTest extends TestCase
         $client = $this->client();
 
         $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound requires mode pro for kling-v2.6');
+        $this->expectExceptionMessage('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
 
         $client->imageToVideo->create([
             'model' => Types::MODEL_V26,
             'prompt' => 'test',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'enable_sound' => true,
-        ]);
+            'enable_sound' => true]);
+    }
+
+    public function testImageToVideoRejectsV26SoundInStandardMode(): void
+    {
+        $client = $this->client();
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('enable_sound must be one of: false when mode is std and model is kling-v2.6');
+
+        $client->imageToVideo->create([
+            'model' => Types::MODEL_V26,
+            'prompt' => 'test',
+            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+            'mode' => 'std',
+            'enable_sound' => true]);
     }
 
     /**
@@ -450,8 +443,7 @@ final class KlingClientTest extends TestCase
             'model' => Types::MODEL_V26,
             'prompt' => 'test',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-        ], $extra));
+            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg'], $extra));
     }
 
     /** @return iterable<string, array{array<string, mixed>, string}> */
@@ -460,8 +452,7 @@ final class KlingClientTest extends TestCase
         yield 'standard mode' => [[], 'last_frame_image_url requires mode pro for kling-v2.6'];
         yield 'ten seconds' => [
             ['mode' => 'pro', 'duration_seconds' => 10],
-            'last_frame_image_url requires duration_seconds 5 for kling-v2.6',
-        ];
+            'last_frame_image_url requires duration_seconds 5 for kling-v2.6'];
     }
 
     public function testImageToVideoRejectsV3OmniFinalFrameOutsideFiveSeconds(): void
@@ -476,8 +467,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'test',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
             'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image.jpg',
-            'duration_seconds' => 7,
-        ]);
+            'duration_seconds' => 7]);
     }
 
     public function testImageToVideoRejectsO1BaseVideoWithFrameInput(): void
@@ -492,8 +482,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'Use <<<video_1>>> as the base',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'reference_video_type' => 'base',
-        ]);
+            'reference_video_type' => 'base']);
     }
 
     public function testImageToVideoRejectsO1TailFrameWithReferenceMedia(): void
@@ -508,8 +497,7 @@ final class KlingClientTest extends TestCase
             'prompt' => 'Move toward <<<image_1>>>',
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
-        ]);
+            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg']]);
     }
 
     public function testTextToVideoRejectsO1MissingVideoReference(): void
@@ -521,8 +509,7 @@ final class KlingClientTest extends TestCase
 
         $client->textToVideo->create([
             'model' => Types::MODEL_O1,
-            'prompt' => 'Follow <<<video_1>>>',
-        ]);
+            'prompt' => 'Follow <<<video_1>>>']);
     }
 
     public function testTextToVideoRejectsNonPublicO1ReferenceMedia(): void
@@ -538,14 +525,12 @@ final class KlingClientTest extends TestCase
             'http://2130706433/reference.jpg',
             'http://127.1/reference.jpg',
             'http://0177.0.0.1/reference.jpg',
-            'http://0x7f000001/reference.jpg',
-        ] as $referenceUrl) {
+            'http://0x7f000001/reference.jpg'] as $referenceUrl) {
             try {
                 $client->textToVideo->create([
                     'model' => Types::MODEL_O1,
                     'prompt' => 'Use <<<image_1>>>',
-                    'reference_image_urls' => [$referenceUrl],
-                ]);
+                    'reference_image_urls' => [$referenceUrl]]);
                 self::fail('Expected non-public reference URL to be rejected: ' . $referenceUrl);
             } catch (ValidationException $error) {
                 self::assertSame(
@@ -560,23 +545,20 @@ final class KlingClientTest extends TestCase
     {
         $transport = new QueueHttpClient([
             new Response(200, ['Content-Type' => 'application/json'], '{"id":"avatar_task"}'),
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"motion_task"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"motion_task"}')]);
         $client = $this->client($transport);
 
         self::assertSame('avatar_task', $client->aiAvatar->create([
             'model' => 'kling-ai-avatar-pro',
             'prompt' => 'A presenter speaking naturally',
             'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-            'source_audio_url' => 'https://cdn.runapi.ai/public/samples/voice.mp3',
-        ])->id);
+            'source_audio_url' => 'https://cdn.runapi.ai/public/samples/voice.mp3'])->id);
 
         self::assertSame('motion_task', $client->motionControl->create([
             'model' => 'kling-3.0',
             'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'output_resolution' => '1080p',
-        ])->id);
+            'output_resolution' => '1080p'])->id);
 
         self::assertSame('/api/v1/kling/ai_avatar', $transport->requests[0]->getUri()->getPath());
         self::assertSame('/api/v1/kling/motion_control', $transport->requests[1]->getUri()->getPath());
@@ -585,8 +567,7 @@ final class KlingClientTest extends TestCase
     public function testMotionControlCreatesV26Request(): void
     {
         $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"motion_v26"}'),
-        ]);
+            new Response(200, ['Content-Type' => 'application/json'], '{"id":"motion_v26"}')]);
         $client = $this->client($transport);
 
         self::assertSame('motion_v26', $client->motionControl->create([
@@ -594,8 +575,7 @@ final class KlingClientTest extends TestCase
             'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
             'output_resolution' => '1080p',
-            'character_orientation' => 'image',
-        ])->id);
+            'character_orientation' => 'image'])->id);
     }
 
     public function testMotionControlV26RequiresOutputResolution(): void
@@ -608,8 +588,7 @@ final class KlingClientTest extends TestCase
             'model' => Types::MODEL_V26,
             'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'character_orientation' => 'video',
-        ]);
+            'character_orientation' => 'video']);
     }
 
     public function testMotionControlV26RejectsBackgroundSource(): void
@@ -624,8 +603,7 @@ final class KlingClientTest extends TestCase
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
             'output_resolution' => '720p',
             'character_orientation' => 'video',
-            'background_source' => 'video',
-        ]);
+            'background_source' => 'video']);
     }
 
     private function client(?QueueHttpClient $transport = null): KlingClient

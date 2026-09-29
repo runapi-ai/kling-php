@@ -144,14 +144,10 @@ readonly class ImageToVideo extends AsyncResource
      */
     private function validateV26Params(array $params): void
     {
-        $mode = $params['mode'] ?? 'std';
-        if (($params['enable_sound'] ?? false) === true && $mode !== 'pro') {
-            throw new ValidationException('enable_sound requires mode pro for kling-v2.6');
-        }
         if (!array_key_exists('last_frame_image_url', $params)) {
             return;
         }
-        if ($mode !== 'pro') {
+        if (($params['mode'] ?? 'std') !== 'pro') {
             throw new ValidationException('last_frame_image_url requires mode pro for kling-v2.6');
         }
         if (($params['duration_seconds'] ?? 5) !== 5) {

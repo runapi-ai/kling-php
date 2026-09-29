@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.2.1](https://github.com/runapi-ai/kling-php/releases/tag/v0.2.1) - 2026-09-29
+
+### Changed
+- Enforce the kling-v2.6 sound-mode rule only through the generated contract rules; the rejection and its message are unchanged.
+
+
 ## [v0.2.0](https://github.com/runapi-ai/kling-php/releases/tag/v0.2.0) - 2026-08-21
 
 ### Added
