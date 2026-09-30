@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use RunApi\Core\ClientOptions;
 use RunApi\Core\Errors\TaskFailedException;
 use RunApi\Core\Errors\TaskTimeoutException;
-use RunApi\Core\Errors\ValidationException;
 use RunApi\Core\Polling\Poller;
 use RunApi\Core\RequestOptions;
 use RunApi\Core\Resources\Account;
@@ -127,19 +126,6 @@ final class KlingClientTest extends TestCase
             'prompt' => 'A serene forest'], new RequestOptions(maxWaitSeconds: 1.0, pollIntervalSeconds: 0.0));
     }
 
-    public function testTextToVideoUsesGeneratedContractValidation(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('duration_seconds must be one of the allowed values');
-
-        $client->textToVideo->create([
-            'model' => 'kling-v2.5-turbo-text-to-video-pro',
-            'prompt' => 'A serene forest',
-            'duration_seconds' => 6]);
-    }
-
     public function testTextToVideoAcceptsV3TurboModel(): void
     {
         $transport = new QueueHttpClient([
@@ -158,19 +144,6 @@ final class KlingClientTest extends TestCase
             '{"model":"kling-v3-turbo-text-to-video","prompt":"A silver train crossing a moonlit bridge","duration_seconds":7,"aspect_ratio":"16:9","output_resolution":"1080p"}',
             (string) $transport->requests[0]->getBody(),
         );
-    }
-
-    public function testTextToVideoRejectsUnsupportedV3TurboFields(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound is not allowed when model is kling-v3-turbo-text-to-video');
-
-        $client->textToVideo->create([
-            'model' => Types::MODEL_V3_TURBO_TEXT_TO_VIDEO,
-            'prompt' => 'A quiet city street after rain',
-            'enable_sound' => false]);
     }
 
     public function testTextToVideoAcceptsV26ModeAndSoundFields(): void
@@ -213,33 +186,6 @@ final class KlingClientTest extends TestCase
         self::assertSame('kling-v3-omni', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
     }
 
-    public function testTextToVideoRejectsV26SoundOutsideProMode(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
-
-        $client->textToVideo->create([
-            'model' => Types::MODEL_V26,
-            'prompt' => 'A paper boat crossing a rain puddle',
-            'enable_sound' => true]);
-    }
-
-    public function testTextToVideoRejectsV26SoundInStandardMode(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound must be one of: false when mode is std and model is kling-v2.6');
-
-        $client->textToVideo->create([
-            'model' => Types::MODEL_V26,
-            'prompt' => 'A paper boat crossing a rain puddle',
-            'mode' => 'std',
-            'enable_sound' => true]);
-    }
-
     public function testTextToVideoAcceptsO1ReferenceMedia(): void
     {
         $transport = new QueueHttpClient([
@@ -265,66 +211,6 @@ final class KlingClientTest extends TestCase
             'duration_seconds' => 5], json_decode((string) $transport->requests[0]->getBody(), true));
     }
 
-    public function testTextToVideoRejectsO1PromptMissingImageMarker(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('prompt must reference reference_image_urls[0] as <<<image_1>>>');
-
-        $client->textToVideo->create([
-            'model' => Types::MODEL_O1,
-            'prompt' => 'Keep the same subject',
-            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg']]);
-    }
-
-    public function testTextToVideoRejectsMissingPromptOutsideMultiShot(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('prompt is required');
-
-        $client->textToVideo->create(['model' => 'kling-3.0']);
-    }
-
-    public function testTextToVideoRejectsInvalidMultiShotState(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound must be true when multi_shots is true');
-
-        $client->textToVideo->create([
-            'model' => 'kling-3.0',
-            'multi_shots' => true,
-            'multi_prompt' => [['prompt' => 'shot one', 'duration_seconds' => 3]]]);
-    }
-
-    public function testImageToVideoCreateAndLastFrameValidation(): void
-    {
-        $transport = new QueueHttpClient([
-            new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_123"}')]);
-        $client = $this->client($transport);
-
-        $client->imageToVideo->create([
-            'model' => 'kling-v2.5-turbo-image-to-video-pro',
-            'prompt' => 'A bird takes flight',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/first-frame.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg']);
-
-        self::assertSame('/api/v1/kling/image_to_video', $transport->requests[0]->getUri()->getPath());
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('last_frame_image_url is only supported');
-
-        $client->imageToVideo->create([
-            'model' => 'kling-v2.1-standard',
-            'prompt' => 'A bird takes flight',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/first-frame.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg']);
-    }
-
     public function testImageToVideoAcceptsV3TurboModel(): void
     {
         $transport = new QueueHttpClient([
@@ -345,20 +231,6 @@ final class KlingClientTest extends TestCase
             'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
             'duration_seconds' => 7,
             'output_resolution' => '720p'], json_decode((string) $transport->requests[0]->getBody(), true));
-    }
-
-    public function testImageToVideoRejectsUnsupportedV3TurboFields(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('last_frame_image_url is not allowed when model is kling-v3-turbo-image-to-video');
-
-        $client->imageToVideo->create([
-            'model' => Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO,
-            'prompt' => 'Camera glides toward the lighthouse',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg']);
     }
 
     public function testImageToVideoAcceptsV26ConditionalFields(): void
@@ -399,148 +271,6 @@ final class KlingClientTest extends TestCase
         self::assertSame('kling-v3-omni', json_decode((string) $transport->requests[0]->getBody(), true)['model']);
     }
 
-    public function testImageToVideoRejectsV26SoundOutsideProMode(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
-
-        $client->imageToVideo->create([
-            'model' => Types::MODEL_V26,
-            'prompt' => 'test',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'enable_sound' => true]);
-    }
-
-    public function testImageToVideoRejectsV26SoundInStandardMode(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('enable_sound must be one of: false when mode is std and model is kling-v2.6');
-
-        $client->imageToVideo->create([
-            'model' => Types::MODEL_V26,
-            'prompt' => 'test',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'mode' => 'std',
-            'enable_sound' => true]);
-    }
-
-    /**
-     * @dataProvider invalidV26FinalFrameProvider
-     * @param array<string, mixed> $extra
-     */
-    public function testImageToVideoRejectsInvalidV26FinalFrameCombinations(array $extra, string $message): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage($message);
-
-        $client->imageToVideo->create(array_merge([
-            'model' => Types::MODEL_V26,
-            'prompt' => 'test',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg'], $extra));
-    }
-
-    /** @return iterable<string, array{array<string, mixed>, string}> */
-    public static function invalidV26FinalFrameProvider(): iterable
-    {
-        yield 'standard mode' => [[], 'last_frame_image_url requires mode pro for kling-v2.6'];
-        yield 'ten seconds' => [
-            ['mode' => 'pro', 'duration_seconds' => 10],
-            'last_frame_image_url requires duration_seconds 5 for kling-v2.6'];
-    }
-
-    public function testImageToVideoRejectsV3OmniFinalFrameOutsideFiveSeconds(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('last_frame_image_url requires duration_seconds 5 for kling-v3-omni');
-
-        $client->imageToVideo->create([
-            'model' => Types::MODEL_V3_OMNI,
-            'prompt' => 'test',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image.jpg',
-            'duration_seconds' => 7]);
-    }
-
-    public function testImageToVideoRejectsO1BaseVideoWithFrameInput(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url');
-
-        $client->imageToVideo->create([
-            'model' => Types::MODEL_O1,
-            'prompt' => 'Use <<<video_1>>> as the base',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'reference_video_type' => 'base']);
-    }
-
-    public function testImageToVideoRejectsO1TailFrameWithReferenceMedia(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('last_frame_image_url cannot be combined with reference_image_urls or reference_video_url');
-
-        $client->imageToVideo->create([
-            'model' => Types::MODEL_O1,
-            'prompt' => 'Move toward <<<image_1>>>',
-            'first_frame_image_url' => 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-            'last_frame_image_url' => 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-            'reference_image_urls' => ['https://cdn.runapi.ai/public/samples/portrait.jpg']]);
-    }
-
-    public function testTextToVideoRejectsO1MissingVideoReference(): void
-    {
-        $client = $this->client();
-
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('prompt references missing video_1');
-
-        $client->textToVideo->create([
-            'model' => Types::MODEL_O1,
-            'prompt' => 'Follow <<<video_1>>>']);
-    }
-
-    public function testTextToVideoRejectsNonPublicO1ReferenceMedia(): void
-    {
-        $client = $this->client();
-
-        foreach ([
-            'file:///etc/passwd.jpg',
-            'http://localhost/reference.jpg',
-            'http://127.0.0.1/reference.jpg',
-            'http://169.254.169.254/reference.jpg',
-            'http://[::ffff:127.0.0.1]/reference.jpg',
-            'http://2130706433/reference.jpg',
-            'http://127.1/reference.jpg',
-            'http://0177.0.0.1/reference.jpg',
-            'http://0x7f000001/reference.jpg'] as $referenceUrl) {
-            try {
-                $client->textToVideo->create([
-                    'model' => Types::MODEL_O1,
-                    'prompt' => 'Use <<<image_1>>>',
-                    'reference_image_urls' => [$referenceUrl]]);
-                self::fail('Expected non-public reference URL to be rejected: ' . $referenceUrl);
-            } catch (ValidationException $error) {
-                self::assertSame(
-                    'reference_image_urls[0] must be a public HTTP or HTTPS URL',
-                    $error->getMessage()
-                );
-            }
-        }
-    }
-
     public function testAiAvatarAndMotionControlCreate(): void
     {
         $transport = new QueueHttpClient([
@@ -576,34 +306,6 @@ final class KlingClientTest extends TestCase
             'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
             'output_resolution' => '1080p',
             'character_orientation' => 'image'])->id);
-    }
-
-    public function testMotionControlV26RequiresOutputResolution(): void
-    {
-        $client = $this->client();
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('output_resolution is required');
-
-        $client->motionControl->create([
-            'model' => Types::MODEL_V26,
-            'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'character_orientation' => 'video']);
-    }
-
-    public function testMotionControlV26RejectsBackgroundSource(): void
-    {
-        $client = $this->client();
-        $this->expectException(ValidationException::class);
-        $this->expectExceptionMessage('background_source is not allowed when model is kling-v2.6');
-
-        $client->motionControl->create([
-            'model' => Types::MODEL_V26,
-            'source_image_url' => 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-            'reference_video_url' => 'https://cdn.runapi.ai/public/samples/video.mp4',
-            'output_resolution' => '720p',
-            'character_orientation' => 'video',
-            'background_source' => 'video']);
     }
 
     private function client(?QueueHttpClient $transport = null): KlingClient

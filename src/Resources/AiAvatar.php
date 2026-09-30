@@ -11,7 +11,6 @@ use RunApi\Core\RequestOptions;
 use RunApi\Core\Resources\AsyncResource;
 use RunApi\Kling\Models\AiAvatarResponse;
 use RunApi\Kling\Models\CompletedAiAvatarResponse;
-use RunApi\Kling\Types;
 
 /**
  * Lip-syncs a face image to an audio track, producing a talking-head video.
@@ -19,7 +18,6 @@ use RunApi\Kling\Types;
 readonly class AiAvatar extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/ai_avatar';
-    private const ACTION = 'kling/avatar';
 
     /**
      * Submits an AI avatar task and returns immediately with a task id.
@@ -71,11 +69,6 @@ readonly class AiAvatar extends AsyncResource
         return self::ENDPOINT;
     }
 
-    protected function action(): string
-    {
-        return self::ACTION;
-    }
-
     /**
      * @param array<string, mixed> $raw
      */
@@ -91,20 +84,5 @@ readonly class AiAvatar extends AsyncResource
         }
 
         return CompletedAiAvatarResponse::fromResponse($response);
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function validate(array $params, string $model): void
-    {
-        if ($model === '_') {
-            throw new ValidationException('model is required');
-        }
-
-        $this->validateModel($model, Types::AI_AVATAR_MODELS);
-        $this->requireField($params, 'source_image_url');
-        $this->requireField($params, 'source_audio_url');
-        $this->requireField($params, 'prompt');
     }
 }

@@ -62,7 +62,7 @@ Use `create()` to submit a task and return quickly, `get()` to fetch the latest 
 
 Returned file URLs are temporary. Download and store generated files in your own durable storage within the retention window.
 
-All SDK exceptions inherit from `RunApi\Core\Errors\RunApiException`, including validation, authentication, rate limit, task failure, and task timeout errors.
+All SDK exceptions inherit from `RunApi\Core\Errors\RunApiException`, including API, authentication, rate limit, task failure, and task timeout errors.
 
 ## Links
 

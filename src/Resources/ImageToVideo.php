@@ -11,7 +11,6 @@ use RunApi\Core\RequestOptions;
 use RunApi\Core\Resources\AsyncResource;
 use RunApi\Kling\Models\CompletedImageToVideoResponse;
 use RunApi\Kling\Models\ImageToVideoResponse;
-use RunApi\Kling\Types;
 
 /**
  * Animates a still image into video, guided by a text prompt and first-frame image.
@@ -19,13 +18,6 @@ use RunApi\Kling\Types;
 readonly class ImageToVideo extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/image_to_video';
-    private const ACTION = 'kling/image-to-video';
-    private const V3_TURBO_UNSUPPORTED_FIELDS = [
-        'aspect_ratio',
-        'negative_prompt',
-        'cfg_scale',
-        'last_frame_image_url',
-    ];
 
     /**
      * Submits an image-to-video task and returns immediately with a task id.
@@ -88,11 +80,6 @@ readonly class ImageToVideo extends AsyncResource
         return self::ENDPOINT;
     }
 
-    protected function action(): string
-    {
-        return self::ACTION;
-    }
-
     /**
      * @param array<string, mixed> $raw
      */
@@ -108,96 +95,5 @@ readonly class ImageToVideo extends AsyncResource
         }
 
         return CompletedImageToVideoResponse::fromResponse($response);
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function validate(array $params, string $model): void
-    {
-        if ($model === '_') {
-            throw new ValidationException('model is required');
-        }
-
-        $this->validateModel($model, Types::IMAGE_TO_VIDEO_MODELS);
-        O1ReferenceValidation::validate($params, $model);
-        if ($model === Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO) {
-            $this->rejectUnsupportedV3TurboFields($params);
-        }
-
-        $this->requireField($params, 'prompt');
-        $this->requireField($params, 'first_frame_image_url');
-
-        if ($model === Types::MODEL_V26) {
-            $this->validateV26Params($params);
-        } elseif ($model === Types::MODEL_V3_OMNI && array_key_exists('last_frame_image_url', $params)) {
-            if (($params['duration_seconds'] ?? 5) !== 5) {
-                throw new ValidationException('last_frame_image_url requires duration_seconds 5 for kling-v3-omni');
-            }
-        } elseif (array_key_exists('last_frame_image_url', $params) && !in_array($model, Types::LAST_FRAME_IMAGE_MODELS, true)) {
-            throw new ValidationException('last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro');
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    private function validateV26Params(array $params): void
-    {
-        if (!array_key_exists('last_frame_image_url', $params)) {
-            return;
-        }
-        if (($params['mode'] ?? 'std') !== 'pro') {
-            throw new ValidationException('last_frame_image_url requires mode pro for kling-v2.6');
-        }
-        if (($params['duration_seconds'] ?? 5) !== 5) {
-            throw new ValidationException('last_frame_image_url requires duration_seconds 5 for kling-v2.6');
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    private function rejectUnsupportedV3TurboFields(array $params): void
-    {
-        foreach (self::V3_TURBO_UNSUPPORTED_FIELDS as $field) {
-            if ($this->fieldPresent($params, $field)) {
-                throw new ValidationException($field . ' is not supported by ' . Types::MODEL_V3_TURBO_IMAGE_TO_VIDEO);
-            }
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    private function fieldPresent(array $params, string $field): bool
-    {
-        if (!array_key_exists($field, $params)) {
-            return false;
-        }
-
-        $value = $params[$field];
-        if ($value === false) {
-            return true;
-        }
-
-        return $this->present($value);
-    }
-
-    private function present(mixed $value): bool
-    {
-        if ($value === null || $value === false) {
-            return false;
-        }
-
-        if (is_string($value)) {
-            return trim($value) !== '';
-        }
-
-        if (is_array($value)) {
-            return $value !== [];
-        }
-
-        return true;
     }
 }

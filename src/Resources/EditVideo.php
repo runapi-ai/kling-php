@@ -16,7 +16,6 @@ use RunApi\Kling\Models\TextToVideoResponse;
 readonly class EditVideo extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/edit_video';
-    private const ACTION = 'kling/edit-video';
 
     /** @param array<string, mixed> $params */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
@@ -48,11 +47,6 @@ readonly class EditVideo extends AsyncResource
     protected function endpoint(): string
     {
         return self::ENDPOINT;
-    }
-
-    protected function action(): string
-    {
-        return self::ACTION;
     }
 
     /** @param array<string, mixed> $raw */

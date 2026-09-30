@@ -11,7 +11,6 @@ use RunApi\Core\RequestOptions;
 use RunApi\Core\Resources\AsyncResource;
 use RunApi\Kling\Models\CompletedMotionControlResponse;
 use RunApi\Kling\Models\MotionControlResponse;
-use RunApi\Kling\Types;
 
 /**
  * Transfers motion from a reference video onto a subject image. The subject adopts the movement patterns from the reference while preserving its own appearance.
@@ -19,7 +18,6 @@ use RunApi\Kling\Types;
 readonly class MotionControl extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/motion_control';
-    private const ACTION = 'kling/motion-control';
 
     /**
      * Submits a motion control task and returns immediately with a task id.
@@ -74,11 +72,6 @@ readonly class MotionControl extends AsyncResource
         return self::ENDPOINT;
     }
 
-    protected function action(): string
-    {
-        return self::ACTION;
-    }
-
     /**
      * @param array<string, mixed> $raw
      */
@@ -94,19 +87,5 @@ readonly class MotionControl extends AsyncResource
         }
 
         return CompletedMotionControlResponse::fromResponse($response);
-    }
-
-    /**
-     * @param array<string, mixed> $params
-     */
-    protected function validate(array $params, string $model): void
-    {
-        if ($model === '_') {
-            throw new ValidationException('model is required');
-        }
-
-        $this->validateModel($model, Types::MOTION_CONTROL_MODELS);
-        $this->requireField($params, 'source_image_url');
-        $this->requireField($params, 'reference_video_url');
     }
 }

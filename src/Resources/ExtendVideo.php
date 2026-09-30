@@ -15,7 +15,6 @@ use RunApi\Kling\Models\TextToVideoResponse;
 readonly class ExtendVideo extends AsyncResource
 {
     private const ENDPOINT = '/api/v1/kling/extend_video';
-    private const ACTION = 'kling/extend-video';
 
     /** @param array<string, mixed> $params */
     public function create(array $params, ?RequestOptions $options = null): TaskCreateResponse
@@ -49,11 +48,6 @@ readonly class ExtendVideo extends AsyncResource
         return self::ENDPOINT;
     }
 
-    protected function action(): string
-    {
-        return self::ACTION;
-    }
-
     /** @param array<string, mixed> $raw */
     protected function hydrate(array $raw): TextToVideoResponse
     {
@@ -67,14 +61,5 @@ readonly class ExtendVideo extends AsyncResource
         }
 
         return CompletedTextToVideoResponse::fromResponse($response);
-    }
-
-    /** @param array<string, mixed> $params */
-    protected function validate(array $params, string $model): void
-    {
-        $this->requireField($params, 'source_task_id');
-        if (isset($params['mode']) && !in_array($params['mode'], ['std', 'pro'], true)) {
-            throw new \RunApi\Core\Errors\ValidationException('mode must be std or pro');
-        }
     }
 }
