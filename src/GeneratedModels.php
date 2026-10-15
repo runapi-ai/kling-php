@@ -27,8 +27,6 @@ final class GeneratedModels
     public const EDIT_VIDEO_KLING_V3_OMNI_REFERENCE = 'kling-v3-omni-reference';
     public const AVATAR_KLING_AI_AVATAR_PRO = 'kling-ai-avatar-pro';
     public const AVATAR_KLING_AI_AVATAR_STANDARD = 'kling-ai-avatar-standard';
-    public const AVATAR_KLING_AI_AVATAR_V1_PRO = 'kling-ai-avatar-v1-pro';
-    public const AVATAR_KLING_V1_AVATAR_STANDARD = 'kling-v1-avatar-standard';
     public const MOTION_CONTROL_KLING_3_0 = 'kling-3.0';
     public const MOTION_CONTROL_KLING_V2_6 = 'kling-v2.6';
 

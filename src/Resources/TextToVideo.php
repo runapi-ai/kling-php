@@ -33,6 +33,7 @@ readonly class TextToVideo extends AsyncResource
      *   negative_prompt?: string,
      *   cfg_scale?: float|int,
      *   multi_shots?: bool,
+     *   shot_type?: 'custom'|'automatic',
      *   multi_prompt?: list<array{prompt?: string, duration_seconds?: int}>,
      *   first_frame_image_url?: string,
      *   last_frame_image_url?: string,

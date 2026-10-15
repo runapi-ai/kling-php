@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.4.0](https://github.com/runapi-ai/kling-php/releases/tag/v0.4.0) - 2026-10-15
+
+### Added
+- Add custom and automatic shot_type storyboarding with optional sound and custom shot duration constraints.
+
+### Removed
+- Remove retired model choices from creation metadata and document historical task lookup.
+  Migration: Retired models return HTTP 410 for new requests. Query existing task IDs with the original task endpoint; no automatic replacement is applied.
+- Remove the background_source motion-control parameter, which the API no longer accepts.
+  Migration: Drop background_source from motion-control requests; the API returns 400 when it is sent.
+
+
 ## [v0.3.0](https://github.com/runapi-ai/kling-php/releases/tag/v0.3.0) - 2026-09-30
 
 ### Changed

@@ -25,8 +25,6 @@ final class Types
     public const MODEL_V21_MASTER_IMAGE_TO_VIDEO = GeneratedModels::IMAGE_TO_VIDEO_KLING_V2_1_MASTER_IMAGE_TO_VIDEO;
     public const MODEL_AI_AVATAR_PRO = GeneratedModels::AVATAR_KLING_AI_AVATAR_PRO;
     public const MODEL_AI_AVATAR_STANDARD = GeneratedModels::AVATAR_KLING_AI_AVATAR_STANDARD;
-    public const MODEL_AI_AVATAR_V1_PRO = GeneratedModels::AVATAR_KLING_AI_AVATAR_V1_PRO;
-    public const MODEL_V1_AVATAR_STANDARD = GeneratedModels::AVATAR_KLING_V1_AVATAR_STANDARD;
 
     /** @var list<string> */
     public const TEXT_TO_VIDEO_MODELS = [
@@ -56,8 +54,6 @@ final class Types
     public const AI_AVATAR_MODELS = [
         self::MODEL_AI_AVATAR_PRO,
         self::MODEL_AI_AVATAR_STANDARD,
-        self::MODEL_AI_AVATAR_V1_PRO,
-        self::MODEL_V1_AVATAR_STANDARD,
     ];
 
     /** @var list<string> */

@@ -62,6 +62,15 @@ final class KlingClientTest extends TestCase
         );
     }
 
+    public function testAutomaticStoryboardForwardsShotType(): void
+    {
+        $transport = new QueueHttpClient([new Response(200, ['Content-Type' => 'application/json'], '{"id":"task_auto"}')]);
+        $client = $this->client($transport);
+        $params = ['model' => 'kling-3.0', 'multi_shots' => true, 'shot_type' => 'automatic', 'prompt' => 'A sunrise'];
+        $client->textToVideo->create($params);
+        self::assertSame($params, json_decode((string) $transport->requests[0]->getBody(), true));
+    }
+
     public function testTextToVideoGetFetchesTaskById(): void
     {
         $transport = new QueueHttpClient([

@@ -29,7 +29,6 @@ readonly class MotionControl extends AsyncResource
      *   prompt?: string,
      *   output_resolution?: string,
      *   character_orientation?: string,
-     *   background_source?: string,
      *   callback_url?: string
      * } $params
      */
